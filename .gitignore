@@ -1,5 +1,3 @@
-!bin/nuklear-lib.c
-!bin/nuklear/nuklear.h
 
 # Created by https://www.gitignore.io/api/commonlisp,windows,visualstudio
 
@@ -51,7 +49,7 @@ $RECYCLE.BIN/
 x64/
 x86/
 bld/
-[Bb]in/
+# [Bb]in/
 [Oo]bj/
 [Ll]og/
 
