@@ -1,6 +1,3 @@
-*
-
-!nuklear-lib.c
+# I don't want anything else that's in the nuklear directory tree
+nuklear/*
 !nuklear/nuklear.h
-!.gitignore
-!*/

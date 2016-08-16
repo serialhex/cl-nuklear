@@ -1,5 +1,5 @@
 /*
- Nuklear - v1.041 - public domain
+ Nuklear - v1.094 - public domain
  no warrenty implied; use at your own risk.
  authored from 2015-2016 by Micha Mettke
 
@@ -44,12 +44,12 @@ USAGE:
     or need more control over the library.
 
 FEATURES:
-    - Absolutely no platform dependent code
+    - Absolutely no platform dependend code
     - Memory management control ranging from/to
         - Ease of use by allocating everything from the standard library
         - Control every byte of memory inside the library
     - Font handling control ranging from/to
-        - Use your own font implementation to draw shapes/vertexes
+        - Use your own font implementation for everything
         - Use this libraries internal font baking and handling API
     - Drawing output control ranging from/to
         - Simple shapes for more high level APIs which already having drawing capabilities
@@ -62,7 +62,7 @@ FEATURES:
         - Advanced widget like abstract comboboxes, contextual menus,...
     - Compile time configuration to only compile what you need
         - Subset which can be used if you do not want to link or use the standard library
-    - Can be easily modified only update on user input instead of frame updates
+    - Can be easily modified to only update on user input instead of frame updates
 
 OPTIONAL DEFINES:
     NK_PRIVATE
@@ -71,7 +71,8 @@ OPTIONAL DEFINES:
 
     NK_INCLUDE_FIXED_TYPES
         If defined it will include header <stdint.h> for fixed sized types
-        otherwise you have to select the correct types.
+        otherwise nuklear tries to select the correct type. If that fails it will
+        throw a compiler error and you have to select the correct types yourself.
 
     NK_INCLUDE_DEFAULT_ALLOCATOR
         if defined it will include header <stdlib.h> and provide additional functions
@@ -81,11 +82,16 @@ OPTIONAL DEFINES:
                     if you don't want to link to the standard library!
 
     NK_INCLUDE_STANDARD_IO
-        if defined it will include header <stdio.h> and <stdarg.h> and provide
-        additional functions depending on file loading and variable arguments
+        if defined it will include header <stdio.h> and provide
+        additional functions depending on file loading.
         IMPORTANT:  this adds the standard library with fopen, fclose,...
-                    as well as va_list,... so don't define this
-                    if you don't want to link to the standard library!
+                    so don't define this if you don't want to link to the standard library!
+
+    NK_INCLUDE_STANDARD_VARARGS
+        if defined it will include header <stdarg.h> and provide
+        additional functions depending on variable arguments
+        IMPORTANT:  this adds the standard library with va_list,...
+                        so don't define this if you don't want to link to the standard library!
 
     NK_INCLUDE_VERTEX_BUFFER_OUTPUT
         Defining this adds a vertex draw command list backend to this
@@ -95,7 +101,7 @@ OPTIONAL DEFINES:
 
     NK_INCLUDE_FONT_BAKING
         Defining this adds the `stb_truetype` and `stb_rect_pack` implementation
-        to this library and provides a default font for font loading and rendering.
+        to this library and provides font loading and rendering.
         If you already have font handling or do not want to use this font handler
         you don't have to define it.
 
@@ -154,6 +160,16 @@ OPTIONAL DEFINES:
         You can define this to 'cosf' or your own cosine implementation
         replacement. If not nuklear will use its own approximation implementation.
 
+    NK_STRTOD
+        You can define this to `strtod` or your own string to double conversion
+        implementation replacement. If not defined nuklear will use its own
+        imprecise and possibly unsafe version.
+
+    NK_DTOA
+        You can define this to `dtoa` or your own double to string conversion
+        implementation replacement. If not defined nuklear will use its own
+        imprecise and possibly unsafe version.
+
     NK_BYTE
     NK_INT16
     NK_UINT16
@@ -174,7 +190,7 @@ CREDITS:
     Big thank you to Omar Cornut (ocornut@github) for his imgui library and
     giving me the inspiration for this library, Casey Muratori for handmade hero
     and his original immediate mode graphical user interface idea and Sean
-    Barret for his amazing single header libraries which restored by faith
+    Barret for his amazing single header libraries which restored my faith
     in libraries and brought me to create some of my own.
 
 LICENSE:
@@ -183,6 +199,50 @@ LICENSE:
     publish and distribute this file as you see fit.
 
 CHANGELOG:
+    - 2016/08/15 (1.094)- Editbox are now still active if enter was pressed with flag
+                            `NK_EDIT_SIG_ENTER`. Main reasoning is to be able to keep
+                            typing after commiting.
+    - 2016/08/15 (1.094)- Removed redundant code
+    - 2016/08/15 (1.094)- Fixed negative numbers in `nk_strtoi` and remove unused variable
+    - 2016/08/15 (1.093)- Fixed `NK_WINDOW_BACKGROUND` flag behavior to select a background
+                            window only as selected by hovering and not by clicking.
+    - 2016/08/14 (1.092)- Fixed a bug in font atlas which caused wrong loading
+                            of glyphes for font with multiple ranges.
+    - 2016/08/12 (1.091)- Added additional function to check if window is currently
+                            hidden and therefore not visible.
+    - 2016/08/12 (1.091)- nk_window_is_closed now queries the correct flag `NK_WINDOW_CLOSED`
+                            instead of the old flag `NK_WINDOW_HIDDEN`
+    - 2016/08/09 (1.09) - Added additional double version to nk_property and changed
+                            the underlying implementation to not cast to float and instead
+                            work directly on the given values.
+    - 2016/08/09 (1.08) - Added additional define to overwrite library internal
+                            floating pointer number to string conversion for additional
+                            precision.
+    - 2016/08/09 (1.08) - Added additional define to overwrite library internal
+                            string to floating point number conversion for additional
+                            precision.
+    - 2016/08/08 (1.072)- Fixed compiling error without define NK_INCLUDE_FIXED_TYPE
+    - 2016/08/08 (1.071)- Fixed possible floating point error inside `nk_widget` leading
+                            to wrong wiget width calculation which results in widgets falsly
+                            becomming tagged as not inside window and cannot be accessed.
+    - 2016/08/08 (1.07) - Nuklear now differentiates between hiding a window (NK_WINDOW_HIDDEN) and
+                            closing a window (NK_WINDOW_CLOSED). A window can be hidden/shown
+                            by using `nk_window_show` and closed by either clicking the close
+                            icon in a window or by calling `nk_window_close`. Only closed
+                            windows get removed at the end of the frame while hidden windows
+                            remain.
+    - 2016/08/08 (1.06) - Added `nk_edit_string_zero_terminated` as a second option to
+                            `nk_edit_string` which takes, edits and outputs a '\0' terminated string.
+    - 2016/08/08 (1.054)- Fixed scrollbar auto hiding behavior
+    - 2016/08/08 (1.053)- Fixed wrong panel padding selection in `nk_layout_widget_space`
+    - 2016/08/07 (1.052)- Fixed old bug in dynamic immediate mode layout API, calculating
+                            wrong item spacing and panel width.
+    - 2016/08/07 (1.051)- Hopefully finally fixed combobox popup drawing bug
+    - 2016/08/07 (1.05) - Split varargs away from NK_INCLUDE_STANDARD_IO into own
+                            define NK_INCLUDE_STANDARD_VARARGS to allow more fine
+                            grained controlled over library includes.
+    - 2016/08/06 (1.045)- Changed memset calls to NK_MEMSET
+    - 2016/08/04 (1.044)- Fixed fast window scaling behavior
     - 2016/08/04 (1.043)- Fixed window scaling, movement bug which appears if you
                             move/scale a window and another window is behind it.
                             If you are fast enough then the window behind gets activated
@@ -293,10 +353,9 @@ typedef unsigned long nk_ptr;
 #else
 typedef NK_POINTER_TYPE nk_ptr;
 #endif
-typedef NK_UINT32 nk_hash;
+typedef nk_uint nk_hash;
 typedef unsigned int nk_flags;
 typedef nk_uint nk_rune;
-typedef unsigned char nk_byte;
 #endif
 
 #ifdef NK_PRIVATE
@@ -595,6 +654,7 @@ NK_API struct nk_command_buffer* nk_window_get_canvas(struct nk_context*);
 NK_API int                      nk_window_has_focus(const struct nk_context*);
 NK_API int                      nk_window_is_collapsed(struct nk_context*, const char*);
 NK_API int                      nk_window_is_closed(struct nk_context*, const char*);
+NK_API int                      nk_window_is_hidden(struct nk_context*, const char*);
 NK_API int                      nk_window_is_active(struct nk_context*, const char*);
 NK_API int                      nk_window_is_hovered(struct nk_context*);
 NK_API int                      nk_window_is_any_hovered(struct nk_context*);
@@ -629,6 +689,7 @@ NK_API struct nk_vec2           nk_layout_space_to_screen(struct nk_context*, st
 NK_API struct nk_vec2           nk_layout_space_to_local(struct nk_context*, struct nk_vec2);
 NK_API struct nk_rect           nk_layout_space_rect_to_screen(struct nk_context*, struct nk_rect);
 NK_API struct nk_rect           nk_layout_space_rect_to_local(struct nk_context*, struct nk_rect);
+NK_API float                    nk_layout_ratio_from_pixel(struct nk_context*, float pixel_width);
 
 /* Layout: Group */
 NK_API int                      nk_group_begin(struct nk_context*, struct nk_panel*, const char *title, nk_flags);
@@ -654,7 +715,7 @@ NK_API void                     nk_label_colored(struct nk_context*, const char*
 NK_API void                     nk_label_wrap(struct nk_context*, const char*);
 NK_API void                     nk_label_colored_wrap(struct nk_context*, const char*, struct nk_color);
 NK_API void                     nk_image(struct nk_context*, struct nk_image);
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_VARARGS
 NK_API void                     nk_labelf(struct nk_context*, nk_flags, const char*, ...);
 NK_API void                     nk_labelf_colored(struct nk_context*, nk_flags align, struct nk_color, const char*,...);
 NK_API void                     nk_labelf_wrap(struct nk_context*, const char*,...);
@@ -723,14 +784,17 @@ NK_API struct nk_color          nk_color_picker(struct nk_context*, struct nk_co
 NK_API int                      nk_color_pick(struct nk_context*, struct nk_color*, enum nk_color_format);
 
 /* Widgets: Property */
+NK_API void                     nk_property_int(struct nk_context *layout, const char *name, int min, int *val, int max, int step, float inc_per_pixel);
 NK_API void                     nk_property_float(struct nk_context *layout, const char *name, float min, float *val, float max, float step, float inc_per_pixel);
-NK_API void                     nk_property_int(struct nk_context *layout, const char *name, int min, int *val, int max, int step, int inc_per_pixel);
+NK_API void                     nk_property_double(struct nk_context *layout, const char *name, double min, double *val, double max, double step, float inc_per_pixel);
+NK_API int                      nk_propertyi(struct nk_context *layout, const char *name, int min, int val, int max, int step, float inc_per_pixel);
 NK_API float                    nk_propertyf(struct nk_context *layout, const char *name, float min, float val, float max, float step, float inc_per_pixel);
-NK_API int                      nk_propertyi(struct nk_context *layout, const char *name, int min, int val, int max, int step, int inc_per_pixel);
+NK_API double                   nk_propertyd(struct nk_context *layout, const char *name, double min, double val, double max, double step, float inc_per_pixel);
 
 /* Widgets: TextEdit */
 NK_API nk_flags                 nk_edit_string(struct nk_context*, nk_flags, char *buffer, int *len, int max, nk_filter);
 NK_API nk_flags                 nk_edit_buffer(struct nk_context*, nk_flags, struct nk_text_edit*, nk_filter);
+NK_API nk_flags                 nk_edit_string_zero_terminated(struct nk_context*, nk_flags, char *buffer, int max, nk_filter);
 
 /* Chart */
 NK_API int                      nk_chart_begin(struct nk_context*, enum nk_chart_type, int num, float min, float max);
@@ -907,6 +971,7 @@ NK_API void                     nk_color_hsva_fv(float *hsva_out, struct nk_colo
 /* image */
 NK_API nk_handle                nk_handle_ptr(void*);
 NK_API nk_handle                nk_handle_id(int);
+NK_API struct nk_image          nk_image_handle(nk_handle);
 NK_API struct nk_image          nk_image_ptr(void*);
 NK_API struct nk_image          nk_image_id(int);
 NK_API int                      nk_image_is_subimage(const struct nk_image* img);
@@ -936,11 +1001,13 @@ NK_API struct nk_vec2           nk_rect_size(struct nk_rect);
 NK_API int                      nk_strlen(const char *str);
 NK_API int                      nk_stricmp(const char *s1, const char *s2);
 NK_API int                      nk_stricmpn(const char *s1, const char *s2, int n);
-NK_API int                      nk_strtof(float *number, const char *buffer);
+NK_API int                      nk_strtoi(const char *str, char **endptr);
+NK_API float                    nk_strtof(const char *str, char **endptr);
+NK_API double                   nk_strtod(const char *str, char **endptr);
 NK_API int                      nk_strfilter(const char *text, const char *regexp);
 NK_API int                      nk_strmatch_fuzzy_string(char const *str, char const *pattern, int *out_score);
 NK_API int                      nk_strmatch_fuzzy_text(const char *txt, int txt_len, const char *pattern, int *out_score);
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_VARARGS
 NK_API int                      nk_strfmt(char *buf, int len, const char *fmt,...);
 #endif
 
@@ -2337,27 +2404,28 @@ enum nk_window_flags {
     NK_WINDOW_ROM           = NK_FLAG(12),
     /* sets the window into a read only mode and does not allow input changes */
     NK_WINDOW_HIDDEN        = NK_FLAG(13),
-    /* Hides the window and stops any window interaction and drawing can be set
-     * by user input or by closing the window */
-    NK_WINDOW_MINIMIZED     = NK_FLAG(14),
+    /* Hides the window and stops any window interaction and drawing */
+    NK_WINDOW_CLOSED        = NK_FLAG(14),
+    /* Directly closes and frees the window at the end of the frame */
+    NK_WINDOW_MINIMIZED     = NK_FLAG(15),
     /* marks the window as minimized */
-    NK_WINDOW_SUB           = NK_FLAG(15),
+    NK_WINDOW_SUB           = NK_FLAG(16),
     /* Marks the window as subwindow of another window*/
-    NK_WINDOW_GROUP         = NK_FLAG(16),
+    NK_WINDOW_GROUP         = NK_FLAG(17),
     /* Marks the window as window widget group */
-    NK_WINDOW_POPUP         = NK_FLAG(17),
+    NK_WINDOW_POPUP         = NK_FLAG(18),
     /* Marks the window as a popup window */
-    NK_WINDOW_NONBLOCK      = NK_FLAG(18),
+    NK_WINDOW_NONBLOCK      = NK_FLAG(19),
     /* Marks the window as a nonblock popup window */
-    NK_WINDOW_CONTEXTUAL    = NK_FLAG(19),
+    NK_WINDOW_CONTEXTUAL    = NK_FLAG(20),
     /* Marks the window as a combo box or menu */
-    NK_WINDOW_COMBO         = NK_FLAG(20),
+    NK_WINDOW_COMBO         = NK_FLAG(21),
     /* Marks the window as a combo box */
-    NK_WINDOW_MENU          = NK_FLAG(21),
+    NK_WINDOW_MENU          = NK_FLAG(22),
     /* Marks the window as a menu */
-    NK_WINDOW_TOOLTIP       = NK_FLAG(22),
+    NK_WINDOW_TOOLTIP       = NK_FLAG(23),
     /* Marks the window as a menu */
-    NK_WINDOW_REMOVE_ROM    = NK_FLAG(23)
+    NK_WINDOW_REMOVE_ROM    = NK_FLAG(24)
     /* Removes the read only mode at the end of the window */
 };
 
@@ -2596,14 +2664,16 @@ template<typename T> struct nk_alignof{struct Big {T x; char c;}; enum {
 #define NK_BUFFER_DEFAULT_INITIAL_SIZE (4*1024)
 #endif
 
+/* standard library headers */
 #ifdef NK_INCLUDE_DEFAULT_ALLOCATOR
 #include <stdlib.h> /* malloc, free */
 #endif
 #ifdef NK_INCLUDE_STANDARD_IO
 #include <stdio.h> /* fopen, fclose,... */
-#include <stdarg.h>
 #endif
-
+#ifdef NK_INCLUDE_STANDARD_VARARGS
+#include <stdarg.h> /* valist, va_start, va_end, ... */
+#endif
 #ifndef NK_ASSERT
 #include <assert.h>
 #define NK_ASSERT(expr) assert(expr)
@@ -2623,6 +2693,12 @@ template<typename T> struct nk_alignof{struct Big {T x; char c;}; enum {
 #endif
 #ifndef NK_COS
 #define NK_COS nk_cos
+#endif
+#ifndef NK_STRTOD
+#define NK_STRTOD nk_strtod
+#endif
+#ifndef NK_DTOA
+#define NK_DTOA nk_dtoa
 #endif
 
 /* Make sure correct type size:
@@ -2995,60 +3071,96 @@ nk_strlen(const char *str)
 }
 
 NK_API int
-nk_strtof(float *number, const char *buffer)
+nk_strtoi(const char *str, char **endptr)
 {
-    float m;
-    float neg = 1.0f;
-    const char *p = buffer;
-    float floatvalue = 0;
+    int neg = 1;
+    const char *p = str;
+    int value = 0;
 
-    NK_ASSERT(number);
-    NK_ASSERT(buffer);
-    if (!number || !buffer) return 0;
-    *number = 0;
+    NK_ASSERT(str);
+    if (!str) return 0;
 
     /* skip whitespace */
-    while (*p && *p == ' ') p++;
+    while (*p == ' ') p++;
     if (*p == '-') {
-        neg = -1.0f;
+        neg = -1;
+        p++;
+    }
+    while (*p && *p != '.' && *p != 'e') {
+        value = value * 10 + (int) (*p - '0');
+        p++;
+    }
+    if (endptr)
+        *endptr = (char*)p;
+    return neg*value;
+}
+
+NK_API double
+nk_strtod(const char *str, char **endptr)
+{
+    double m;
+    double neg = 1.0;
+    const char *p = str;
+    double value = 0;
+    double number = 0;
+
+    NK_ASSERT(str);
+    if (!str) return 0;
+
+    /* skip whitespace */
+    while (*p == ' ') p++;
+    if (*p == '-') {
+        neg = -1.0;
         p++;
     }
 
-    while( *p && *p != '.' && *p != 'e' ) {
-        floatvalue = floatvalue * 10.0f + (float) (*p - '0');
+    while (*p && *p != '.' && *p != 'e') {
+        value = value * 10.0 + (double) (*p - '0');
         p++;
     }
 
-    if ( *p == '.' ) {
+    if (*p == '.') {
         p++;
-        for(m = 0.1f; *p && *p != 'e'; p++ ) {
-            floatvalue = floatvalue + (float) (*p - '0') * m;
-            m *= 0.1f;
+        for(m = 0.1; *p && *p != 'e'; p++ ) {
+            value = value + (double) (*p - '0') * m;
+            m *= 0.1;
         }
     }
-    if ( *p == 'e' ) {
+    if (*p == 'e') {
         int i, pow, div;
         p++;
-        if ( *p == '-' ) {
+        if (*p == '-') {
             div = nk_true;
             p++;
-        } else if ( *p == '+' ) {
+        } else if (*p == '+') {
             div = nk_false;
             p++;
         } else div = nk_false;
 
-        for ( pow = 0; *p; p++ )
+        for (pow = 0; *p; p++)
             pow = pow * 10 + (int) (*p - '0');
 
-        for ( m = 1.0, i = 0; i < pow; i++ )
-            m *= 10.0f;
+        for (m = 1.0, i = 0; i < pow; i++)
+            m *= 10.0;
 
-        if ( div )
-            floatvalue /= m;
-        else floatvalue *= m;
+        if (div)
+            value /= m;
+        else value *= m;
     }
-    *number = floatvalue * neg;
-    return 1;
+    number = value * neg;
+    if (endptr)
+        *endptr = (char*)p;
+    return number;
+}
+
+NK_API float
+nk_strtof(const char *str, char **endptr)
+{
+    float float_value;
+    double double_value;
+    double_value = NK_STRTOD(str, endptr);
+    float_value = (float)double_value;
+    return float_value;
 }
 
 NK_API int
@@ -3274,7 +3386,7 @@ NK_API int
 nk_strmatch_fuzzy_string(char const *str, char const *pattern, int *out_score)
 {return nk_strmatch_fuzzy_text(str, nk_strlen(str), pattern, out_score);}
 
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_VARARGS
 NK_API int
 nk_strfmt(char *buf, int buf_size, const char *fmt,...)
 {
@@ -3334,27 +3446,27 @@ nk_pow(float x, int n)
 }
 
 NK_INTERN int
-nk_ifloor(float x)
+nk_ifloor(double x)
 {
-    x = (float)((int)x - ((x < 0.0f) ? 1 : 0));
+    x = (double)((int)x - ((x < 0.0f) ? 1 : 0));
     return (int)x;
 }
 
 NK_INTERN int
-nk_iceil(float x)
+nk_iceil(double x)
 {
     if (x >= 0) {
         int i = (int)x;
         return i;
     } else {
         int t = (int)x;
-        float r = x - (float)t;
+        double r = x - (double)t;
         return (r > 0.0f) ? t+1: t;
     }
 }
 
 NK_INTERN int
-nk_log10(float n)
+nk_log10(double n)
 {
     int neg;
     int ret;
@@ -3370,17 +3482,59 @@ nk_log10(float n)
     return exp;
 }
 
-NK_INTERN int
-nk_ftos(char *s, float n)
+NK_INTERN void
+nk_strrev_ascii(char *s)
+{
+    int len = nk_strlen(s);
+    int end = len / 2;
+    int i = 0;
+    char t;
+    for (; i < end; ++i) {
+        t = s[i];
+        s[i] = s[len - 1 - i];
+        s[len -1 - i] = t;
+    }
+}
+
+NK_INTERN char*
+nk_itoa(char *s, int n)
+{
+    int i = 0;
+    if (n == 0) {
+        s[i++] = '0';
+        s[i] = 0;
+        return s;
+    }
+    if (n < 0) {
+        s[i++] = '-';
+        n = -n;
+    }
+    while (n > 0) {
+        s[i++] = (char)('0' + (n % 10));
+        n /= 10;
+    }
+    s[i] = 0;
+    if (s[0] == '-')
+        ++s;
+
+    nk_strrev_ascii(s);
+    return s;
+}
+
+NK_INTERN char*
+nk_dtoa(char *s, double n)
 {
     int useExp = 0;
     int digit = 0, m = 0, m1 = 0;
     char *c = s;
     int neg = 0;
 
+    NK_ASSERT(s);
+    if (!s) return 0;
+
     if (n == 0.0f) {
         s[0] = '0'; s[1] = '\0';
-        return 1;
+        return s;
     }
 
     neg = (n < 0);
@@ -3405,11 +3559,11 @@ nk_ftos(char *s, float n)
 
     /* convert the number */
     while (n > NK_FLOAT_PRECISION || m >= 0) {
-        float weight = nk_pow(10.0, m);
+        double weight = nk_pow(10.0, m);
         if (weight > 0) {
-            float t = (float)n / weight;
+            double t = (double)n / weight;
             digit = nk_ifloor(t);
-            n -= ((float)digit * weight);
+            n -= ((double)digit * weight);
             *(c++) = (char)('0' + (char)digit);
         }
         if (m == 0 && n > 0)
@@ -3443,7 +3597,7 @@ nk_ftos(char *s, float n)
         c += m;
     }
     *(c) = '\0';
-    return (int)(c - s);
+    return s;
 }
 
 NK_API nk_hash
@@ -4005,6 +4159,20 @@ nk_subimage_handle(nk_handle handle, unsigned short w, unsigned short h,
     s.region[1] = (unsigned short)r.y;
     s.region[2] = (unsigned short)r.w;
     s.region[3] = (unsigned short)r.h;
+    return s;
+}
+
+NK_API struct nk_image
+nk_image_handle(nk_handle handle)
+{
+    struct nk_image s;
+    nk_zero(&s, sizeof(s));
+    s.handle = handle;
+    s.w = 0; s.h = 0;
+    s.region[0] = 0;
+    s.region[1] = 0;
+    s.region[2] = 0;
+    s.region[3] = 0;
     return s;
 }
 
@@ -9123,14 +9291,13 @@ nk_font_bake(struct nk_font_baker *baker, void *image_memory, int width, int hei
 
                 /* query glyph bounds from stb_truetype */
                 const struct nk_tt_packedchar *pc = &range->chardata_for_range[char_idx];
-                glyph_count++;
                 if (!pc->x0 && !pc->x1 && !pc->y0 && !pc->y1) continue;
                 codepoint = (nk_rune)(range->first_unicode_codepoint_in_range + char_idx);
                 nk_tt_GetPackedQuad(range->chardata_for_range, (int)width,
                     (int)height, char_idx, &dummy_x, &dummy_y, &q, 0);
 
                 /* fill own glyph type with data */
-                glyph = &glyphs[dst_font->glyph_offset + (unsigned int)char_idx];
+                glyph = &glyphs[dst_font->glyph_offset + (unsigned int)glyph_count];
                 glyph->codepoint = codepoint;
                 glyph->x0 = q.x0; glyph->y0 = q.y0;
                 glyph->x1 = q.x1; glyph->y1 = q.y1;
@@ -9153,6 +9320,7 @@ nk_font_bake(struct nk_font_baker *baker, void *image_memory, int width, int hei
                 glyph->xadvance = (pc->xadvance + cfg->spacing.x);
                 if (cfg->pixel_snap)
                     glyph->xadvance = (float)(int)(glyph->xadvance + 0.5f);
+                glyph_count++;
             }
         }
         dst_font->glyph_count = glyph_count;
@@ -13107,14 +13275,11 @@ nk_do_edit(nk_flags *state, struct nk_command_buffer *out,
         /* enter key handler */
         if (nk_input_is_key_pressed(in, NK_KEY_ENTER)) {
             cursor_follow = nk_true;
-            if (flags & NK_EDIT_CTRL_ENTER_NEWLINE && shift_mod) {
+            if (flags & NK_EDIT_CTRL_ENTER_NEWLINE && shift_mod)
                 nk_textedit_text(edit, "\n", 1);
-            } else if (flags & NK_EDIT_SIG_ENTER) {
-                ret = NK_EDIT_INACTIVE;
-                ret |= NK_EDIT_DEACTIVATED;
+            else if (flags & NK_EDIT_SIG_ENTER)
                 ret |= NK_EDIT_COMMITED;
-                edit->active = 0;
-            } else nk_textedit_text(edit, "\n", 1);
+            else nk_textedit_text(edit, "\n", 1);
         }
 
         /* cut & copy handler */
@@ -13506,15 +13671,32 @@ enum nk_property_status {
     NK_PROPERTY_EDIT,
     NK_PROPERTY_DRAG
 };
-
 enum nk_property_filter {
     NK_FILTER_INT,
     NK_FILTER_FLOAT
 };
+enum nk_property_kind {
+    NK_PROPERTY_INT,
+    NK_PROPERTY_FLOAT,
+    NK_PROPERTY_DOUBLE
+};
+union nk_property {
+    int i;
+    float f;
+    double d;
+};
+struct nk_property_variant {
+    enum nk_property_kind kind;
+    union nk_property value;
+    union nk_property min_value;
+    union nk_property max_value;
+    union nk_property step;
+};
 
-NK_INTERN float
+NK_INTERN void
 nk_drag_behavior(nk_flags *state, const struct nk_input *in,
-    struct nk_rect drag, float min, float val, float max, float inc_per_pixel)
+    struct nk_rect drag, struct nk_property_variant *variant,
+    float inc_per_pixel)
 {
     int left_mouse_down = in && in->mouse.buttons[NK_BUTTON_LEFT].down;
     int left_mouse_click_in_cursor = in &&
@@ -13528,24 +13710,35 @@ nk_drag_behavior(nk_flags *state, const struct nk_input *in,
         float delta, pixels;
         pixels = in->mouse.delta.x;
         delta = pixels * inc_per_pixel;
-        val += delta;
-        val = NK_CLAMP(min, val, max);
+        switch (variant->kind) {
+        default: break;
+        case NK_PROPERTY_INT:
+            variant->value.i = variant->value.i + (int)delta;
+            variant->value.i = NK_CLAMP(variant->min_value.i, variant->value.i, variant->max_value.i);
+            break;
+        case NK_PROPERTY_FLOAT:
+            variant->value.f = variant->value.f + (float)delta;
+            variant->value.f = NK_CLAMP(variant->min_value.f, variant->value.f, variant->max_value.f);
+            break;
+        case NK_PROPERTY_DOUBLE:
+            variant->value.d = variant->value.d + (double)delta;
+            variant->value.d = NK_CLAMP(variant->min_value.d, variant->value.d, variant->max_value.d);
+            break;
+        }
         *state = NK_WIDGET_STATE_ACTIVE;
     }
     if (*state & NK_WIDGET_STATE_HOVER && !nk_input_is_mouse_prev_hovering_rect(in, drag))
         *state |= NK_WIDGET_STATE_ENTERED;
     else if (nk_input_is_mouse_prev_hovering_rect(in, drag))
         *state |= NK_WIDGET_STATE_LEFT;
-    return val;
 }
 
-NK_INTERN float
+NK_INTERN void
 nk_property_behavior(nk_flags *ws, const struct nk_input *in,
     struct nk_rect property,  struct nk_rect label, struct nk_rect edit,
-    struct nk_rect empty, int *state, float min, float value, float max,
-    float step, float inc_per_pixel)
+    struct nk_rect empty, int *state, struct nk_property_variant *variant,
+    float inc_per_pixel)
 {
-    NK_UNUSED(step);
     if (in && *state == NK_PROPERTY_DEFAULT) {
         if (nk_button_behavior(ws, edit, in, NK_BUTTON_DEFAULT))
             *state = NK_PROPERTY_EDIT;
@@ -13555,10 +13748,9 @@ nk_property_behavior(nk_flags *ws, const struct nk_input *in,
             *state = NK_PROPERTY_DRAG;
     }
     if (*state == NK_PROPERTY_DRAG) {
-        value = nk_drag_behavior(ws, in, property, min, value, max, inc_per_pixel);
+        nk_drag_behavior(ws, in, property, variant, inc_per_pixel);
         if (!(*ws & NK_WIDGET_STATE_ACTIVED)) *state = NK_PROPERTY_DEFAULT;
     }
-    return value;
 }
 
 NK_INTERN void
@@ -13597,11 +13789,11 @@ nk_draw_property(struct nk_command_buffer *out, const struct nk_style_property *
     nk_widget_text(out, *label, name, len, &text, NK_TEXT_CENTERED, font);
 }
 
-NK_INTERN float
+NK_INTERN void
 nk_do_property(nk_flags *ws,
     struct nk_command_buffer *out, struct nk_rect property,
-    const char *name, float min, float val, float max,
-    float step, float inc_per_pixel, char *buffer, int *len,
+    const char *name, struct nk_property_variant *variant,
+    float inc_per_pixel, char *buffer, int *len,
     int *state, int *cursor, const struct nk_style_property *style,
     enum nk_property_filter filter, struct nk_input *in,
     const struct nk_user_font *font, struct nk_text_edit *text_edit)
@@ -13615,10 +13807,6 @@ nk_do_property(nk_flags *ws,
     char string[NK_MAX_NUMBER_BUFFER];
     float size;
 
-    float property_min;
-    float property_max;
-    float property_value;
-
     char *dst = 0;
     int *length;
 
@@ -13627,11 +13815,6 @@ nk_do_property(nk_flags *ws,
     struct nk_rect label;
     struct nk_rect edit;
     struct nk_rect empty;
-
-    /* make sure the provided values are correct */
-    property_max = NK_MAX(min, max);
-    property_min = NK_MIN(min, max);
-    property_value = NK_CLAMP(property_min, val, property_max);
 
     /* left decrement button */
     left.h = font->height/2;
@@ -13660,12 +13843,26 @@ nk_do_property(nk_flags *ws,
         length = len;
         dst = buffer;
     } else {
-        nk_ftos(string, property_value);
-        num_len = nk_string_float_limit(string, NK_MAX_FLOAT_PRECISION);
+        switch (variant->kind) {
+        default: break;
+        case NK_PROPERTY_INT:
+            nk_itoa(string, variant->value.i);
+            num_len = nk_strlen(string);
+            break;
+        case NK_PROPERTY_FLOAT:
+            nk_dtoa(string, (double)variant->value.f);
+            num_len = nk_string_float_limit(string, NK_MAX_FLOAT_PRECISION);
+            break;
+        case NK_PROPERTY_DOUBLE:
+            nk_dtoa(string, variant->value.d);
+            num_len = nk_string_float_limit(string, NK_MAX_FLOAT_PRECISION);
+            break;
+        }
         size = font->width(font->userdata, font->height, string, num_len);
         dst = string;
         length = &num_len;
     }
+
     edit.w =  (float)size + 2 * style->padding.x;
     edit.w = NK_MIN(edit.w, right.x - (label.x + label.w));
     edit.x = right.x - (edit.w + style->padding.x);
@@ -13680,22 +13877,38 @@ nk_do_property(nk_flags *ws,
 
     /* update property */
     old = (*state == NK_PROPERTY_EDIT);
-    property_value = nk_property_behavior(ws, in, property, label, edit, empty,
-                        state, property_min, property_value, property_max,
-                        step, inc_per_pixel);
+    nk_property_behavior(ws, in, property, label, edit, empty, state, variant, inc_per_pixel);
 
     /* draw property */
     if (style->draw_begin) style->draw_begin(out, style->userdata);
     nk_draw_property(out, style, &property, &label, *ws, name, name_len, font);
     if (style->draw_end) style->draw_end(out, style->userdata);
 
-    /* execute right and left button  */
-    if (nk_do_button_symbol(ws, out, left, style->sym_left, NK_BUTTON_DEFAULT,
-        &style->dec_button, in, font))
-        property_value = NK_CLAMP(min, property_value - step, max);
-    if (nk_do_button_symbol(ws, out, right, style->sym_right, NK_BUTTON_DEFAULT,
-        &style->inc_button, in, font))
-        property_value = NK_CLAMP(min, property_value + step, max);
+    /* execute right button  */
+    if (nk_do_button_symbol(ws, out, left, style->sym_left, NK_BUTTON_DEFAULT, &style->dec_button, in, font)) {
+        switch (variant->kind) {
+        default: break;
+        case NK_PROPERTY_INT:
+            variant->value.i = NK_CLAMP(variant->min_value.i, variant->value.i - variant->step.i, variant->max_value.i); break;
+        case NK_PROPERTY_FLOAT:
+            variant->value.f = NK_CLAMP(variant->min_value.f, variant->value.f - variant->step.f, variant->max_value.f); break;
+        case NK_PROPERTY_DOUBLE:
+            variant->value.d = NK_CLAMP(variant->min_value.d, variant->value.d - variant->step.d, variant->max_value.d); break;
+        }
+    }
+
+    /* execute left button  */
+    if (nk_do_button_symbol(ws, out, right, style->sym_right, NK_BUTTON_DEFAULT, &style->inc_button, in, font)) {
+        switch (variant->kind) {
+        default: break;
+        case NK_PROPERTY_INT:
+            variant->value.i = NK_CLAMP(variant->min_value.i, variant->value.i + variant->step.i, variant->max_value.i); break;
+        case NK_PROPERTY_FLOAT:
+            variant->value.f = NK_CLAMP(variant->min_value.f, variant->value.f + variant->step.f, variant->max_value.f); break;
+        case NK_PROPERTY_DOUBLE:
+            variant->value.d = NK_CLAMP(variant->min_value.d, variant->value.d + variant->step.d, variant->max_value.d); break;
+        }
+    }
 
     active = (*state == NK_PROPERTY_EDIT);
     if (old != NK_PROPERTY_EDIT && active) {
@@ -13706,24 +13919,24 @@ nk_do_property(nk_flags *ws,
         length = len;
         dst = buffer;
     }
-    {
-        /* execute and run text edit field */
-        nk_textedit_clear_state(text_edit, NK_TEXT_EDIT_SINGLE_LINE, filters[filter]);
-        text_edit->active = (unsigned char)active;
-        text_edit->string.len = *length;
-        text_edit->cursor = NK_CLAMP(0, *cursor, *length);
-        text_edit->string.buffer.allocated = (nk_size)*length;
-        text_edit->string.buffer.memory.size = NK_MAX_NUMBER_BUFFER;
-        text_edit->string.buffer.memory.ptr = dst;
-        text_edit->string.buffer.size = NK_MAX_NUMBER_BUFFER;
-        text_edit->mode = NK_TEXT_EDIT_MODE_INSERT;
-        nk_do_edit(ws, out, edit, NK_EDIT_ALWAYS_INSERT_MODE, filters[filter],
-            text_edit, &style->edit, (*state == NK_PROPERTY_EDIT) ? in: 0, font);
 
-        *length = text_edit->string.len;
-        active = text_edit->active;
-        *cursor = text_edit->cursor;
-    }
+    /* execute and run text edit field */
+    nk_textedit_clear_state(text_edit, NK_TEXT_EDIT_SINGLE_LINE, filters[filter]);
+    text_edit->active = (unsigned char)active;
+    text_edit->string.len = *length;
+    text_edit->cursor = NK_CLAMP(0, *cursor, *length);
+    text_edit->string.buffer.allocated = (nk_size)*length;
+    text_edit->string.buffer.memory.size = NK_MAX_NUMBER_BUFFER;
+    text_edit->string.buffer.memory.ptr = dst;
+    text_edit->string.buffer.size = NK_MAX_NUMBER_BUFFER;
+    text_edit->mode = NK_TEXT_EDIT_MODE_INSERT;
+    nk_do_edit(ws, out, edit, NK_EDIT_ALWAYS_INSERT_MODE, filters[filter],
+        text_edit, &style->edit, (*state == NK_PROPERTY_EDIT) ? in: 0, font);
+
+    *length = text_edit->string.len;
+    active = text_edit->active;
+    *cursor = text_edit->cursor;
+
     if (active && nk_input_is_key_pressed(in, NK_KEY_ENTER))
         active = !active;
 
@@ -13731,11 +13944,24 @@ nk_do_property(nk_flags *ws,
         /* property is now not active so convert edit text to value*/
         *state = NK_PROPERTY_DEFAULT;
         buffer[*len] = '\0';
-        nk_string_float_limit(buffer, NK_MAX_FLOAT_PRECISION);
-        nk_strtof(&property_value, buffer);
-        property_value = NK_CLAMP(min, property_value, max);
+        switch (variant->kind) {
+        default: break;
+        case NK_PROPERTY_INT:
+            variant->value.i = nk_strtoi(buffer, 0);
+            variant->value.i = NK_CLAMP(variant->min_value.i, variant->value.i, variant->max_value.i);
+            break;
+        case NK_PROPERTY_FLOAT:
+            nk_string_float_limit(buffer, NK_MAX_FLOAT_PRECISION);
+            variant->value.f = nk_strtof(buffer, 0);
+            variant->value.f = NK_CLAMP(variant->min_value.f, variant->value.f, variant->max_value.f);
+            break;
+        case NK_PROPERTY_DOUBLE:
+            nk_string_float_limit(buffer, NK_MAX_FLOAT_PRECISION);
+            variant->value.d = nk_strtod(buffer, 0);
+            variant->value.d = NK_CLAMP(variant->min_value.d, variant->value.d, variant->max_value.d);
+            break;
+        }
     }
-    return property_value;
 }
 /* ===============================================================
  *
@@ -14774,7 +15000,7 @@ nk_clear(struct nk_context *ctx)
     ctx->memory.calls = 0;
     ctx->last_widget_state = 0;
     ctx->style.cursor_active = ctx->style.cursors[NK_CURSOR_ARROW];
-    memset(&ctx->overlay, 0, sizeof(ctx->overlay));
+    NK_MEMSET(&ctx->overlay, 0, sizeof(ctx->overlay));
 #ifdef NK_INCLUDE_VERTEX_BUFFER_OUTPUT
     nk_draw_list_clear(&ctx->draw_list);
 #endif
@@ -14809,7 +15035,7 @@ nk_clear(struct nk_context *ctx)
         }}
 
         /* window itself is not used anymore so free */
-        if (iter->seq != ctx->seq || iter->flags & NK_WINDOW_HIDDEN) {
+        if (iter->seq != ctx->seq || iter->flags & NK_WINDOW_CLOSED) {
             next = iter->next;
             nk_remove_window(ctx, iter);
             nk_free_window(ctx, iter);
@@ -15361,7 +15587,7 @@ nk_begin_titled(struct nk_context *ctx, struct nk_panel *layout,
                     iter->bounds: nk_rect(iter->bounds.x, iter->bounds.y, iter->bounds.w, h);
                 if (NK_INTERSECT(win->bounds.x, win->bounds.y, win->bounds.w, win->bounds.h,
                     iter_bounds.x, iter_bounds.y, iter_bounds.w, iter_bounds.h) &&
-                    !(iter->flags & NK_WINDOW_HIDDEN))
+                    (!(iter->flags & NK_WINDOW_HIDDEN) || !(iter->flags & NK_WINDOW_BACKGROUND)))
                     break;
 
                 if (iter->popup.win && iter->popup.active && !(iter->flags & NK_WINDOW_HIDDEN) &&
@@ -15374,7 +15600,7 @@ nk_begin_titled(struct nk_context *ctx, struct nk_panel *layout,
         }
 
         /* activate window if clicked */
-        if (iter && inpanel && (win != ctx->end)) {
+        if (iter && inpanel && (win != ctx->end) && !(iter->flags & NK_WINDOW_BACKGROUND)) {
             iter = win->next;
             while (iter) {
                 /* try to find a panel with higher priority in the same position */
@@ -15405,7 +15631,7 @@ nk_begin_titled(struct nk_context *ctx, struct nk_panel *layout,
             win->flags &= ~(nk_flags)NK_WINDOW_ROM;
             ctx->active = win;
         }
-        if (ctx->end != win && (!(win->flags & NK_WINDOW_BACKGROUND)))
+        if (ctx->end != win && !(win->flags & NK_WINDOW_BACKGROUND))
             win->flags |= NK_WINDOW_ROM;
     }
 
@@ -15616,6 +15842,22 @@ nk_window_is_closed(struct nk_context *ctx, const char *name)
     title_hash = nk_murmur_hash(name, (int)title_len, NK_WINDOW_TITLE);
     win = nk_find_window(ctx, title_hash);
     if (!win) return 1;
+    return (win->flags & NK_WINDOW_CLOSED);
+}
+
+NK_API int
+nk_window_is_hidden(struct nk_context *ctx, const char *name)
+{
+    int title_len;
+    nk_hash title_hash;
+    struct nk_window *win;
+    NK_ASSERT(ctx);
+    if (!ctx) return 1;
+
+    title_len = (int)nk_strlen(name);
+    title_hash = nk_murmur_hash(name, (int)title_len, NK_WINDOW_TITLE);
+    win = nk_find_window(ctx, title_hash);
+    if (!win) return 1;
     return (win->flags & NK_WINDOW_HIDDEN);
 }
 
@@ -15656,6 +15898,7 @@ nk_window_close(struct nk_context *ctx, const char *name)
     NK_ASSERT(ctx->current != win && "You cannot close a currently active window");
     if (ctx->current == win) return;
     win->flags |= NK_WINDOW_HIDDEN;
+    win->flags |= NK_WINDOW_CLOSED;
 }
 
 NK_API void
@@ -15977,7 +16220,10 @@ nk_panel_begin(struct nk_context *ctx, const char *title)
             if (nk_do_button_symbol(&ws, &win->buffer, button,
                 style->window.header.close_symbol, NK_BUTTON_DEFAULT,
                 &style->window.header.close_button, in, style->font))
+            {
                 layout->flags |= NK_WINDOW_HIDDEN;
+                layout->flags |= NK_WINDOW_CLOSED;
+            }
         }
 
         /* window minimize button */
@@ -16063,9 +16309,8 @@ nk_panel_begin(struct nk_context *ctx, const char *title)
         layout->clip.y = layout->bounds.y;
 
         /* combo box and menu do not have header space */
-        if (!(win->flags & NK_WINDOW_COMBO) && !(win->flags & NK_WINDOW_MENU)) {
+        if (!(win->flags & NK_WINDOW_COMBO) && !(win->flags & NK_WINDOW_MENU))
             layout->clip.y += layout->header_h + style->window.padding.y;
-        }
 
         nk_unify(&clip, &win->buffer.clip, layout->clip.x, layout->clip.y,
             layout->clip.x + layout->clip.w, layout->clip.y + layout->clip.h);
@@ -16091,7 +16336,6 @@ nk_panel_end(struct nk_context *ctx)
 
     struct nk_vec2 scrollbar_size;
     struct nk_vec2 scaler_size;
-    struct nk_vec2 item_spacing;
     struct nk_vec2 window_padding;
     struct nk_rect footer = {0,0,0,0};
 
@@ -16110,7 +16354,6 @@ nk_panel_end(struct nk_context *ctx)
         nk_push_scissor(out, nk_null_rect);
 
     /* cache configuration data */
-    item_spacing = style->window.spacing;
     window_padding = style->window.padding;
     scrollbar_size = style->window.scrollbar_size;
     scaler_size = style->window.scaler_size;
@@ -16139,10 +16382,10 @@ nk_panel_end(struct nk_context *ctx)
                 /* special case for windows like combobox, menu require draw call
                  * to fill the empty scrollbar background */
                 struct nk_rect bounds;
-                bounds.x = layout->bounds.x + layout->width - layout->border/2.0f;
+                bounds.x = layout->bounds.x + layout->width - layout->border*2;
                 bounds.y = layout->clip.y;
-                bounds.w = scrollbar_size.x + layout->border;
-                bounds.h = layout->height;
+                bounds.w = scrollbar_size.x + layout->border*2;
+                bounds.h = layout->height + layout->border;
                 nk_fill_rect(out, bounds, 0, style->window.background);
             }
         } else {
@@ -16159,10 +16402,10 @@ nk_panel_end(struct nk_context *ctx)
             if (!(layout->flags & NK_WINDOW_COMBO) && !(layout->flags & NK_WINDOW_MENU)) {
                 /* fill empty scrollbar space */
                 struct nk_rect bounds;
-                bounds.x = layout->bounds.x;
+                bounds.x = layout->bounds.x - layout->border/2.0f;
                 bounds.y = window->bounds.y + layout->height;
-                bounds.w = layout->bounds.w;
-                bounds.h = layout->row.height;
+                bounds.w = layout->bounds.w + layout->border;
+                bounds.h = layout->row.height + layout->border;
                 nk_fill_rect(out, bounds, 0, style->window.background);
             }
         }
@@ -16274,14 +16517,14 @@ nk_panel_end(struct nk_context *ctx)
     }
 
     /* hide scroll if no user input */
-    {int has_input = ctx->input.mouse.delta.x || ctx->input.mouse.delta.y || ctx->input.mouse.scroll_delta;
-    int is_window_hovered = nk_window_is_hovered(ctx);
-    int any_item_active = (ctx->last_widget_state & NK_WIDGET_STATE_MODIFIED);
     if (window->flags & NK_WINDOW_SCROLL_AUTO_HIDE) {
-        if ((!has_input && is_window_hovered) || (is_window_hovered && !any_item_active))
+        int has_input = ctx->input.mouse.delta.x || ctx->input.mouse.delta.y || ctx->input.mouse.scroll_delta;
+        int is_window_hovered = nk_window_is_hovered(ctx);
+        int any_item_active = (ctx->last_widget_state & NK_WIDGET_STATE_MODIFIED);
+        if ((!has_input && is_window_hovered) || (!is_window_hovered && !any_item_active))
             window->scrollbar_hiding_timer += ctx->delta_time_seconds;
         else window->scrollbar_hiding_timer = 0;
-    } else window->scrollbar_hiding_timer = 0;}
+    } else window->scrollbar_hiding_timer = 0;
 
     /* window border */
     if (layout->flags & NK_WINDOW_BORDER)
@@ -16349,39 +16592,40 @@ nk_panel_end(struct nk_context *ctx)
     if ((layout->flags & NK_WINDOW_SCALABLE) && in && !(layout->flags & NK_WINDOW_MINIMIZED))
     {
         /* calculate scaler bounds */
-        const struct nk_style_item *scaler;
-        float scaler_w = NK_MAX(0, scaler_size.x - window_padding.x);
-        float scaler_h = NK_MAX(0, scaler_size.y - window_padding.y);
-        float scaler_x = (layout->bounds.x + layout->bounds.w) - (window_padding.x + scaler_w);
-        float scaler_y;
+        struct nk_rect scaler;
+        const struct nk_style_item *item;
+        scaler.w = NK_MAX(0, scaler_size.x - window_padding.x);
+        scaler.h = NK_MAX(0, scaler_size.y - window_padding.y);
+        scaler.x = (layout->bounds.x + layout->bounds.w) - (window_padding.x + scaler.w);
 
         if (layout->flags & NK_WINDOW_DYNAMIC)
-            scaler_y = footer.y + layout->footer_h - scaler_size.y;
-        else scaler_y = layout->bounds.y + layout->bounds.h - scaler_size.y;
+            scaler.y = footer.y + layout->footer_h - scaler_size.y;
+        else scaler.y = layout->bounds.y + layout->bounds.h - scaler_size.y;
 
         /* draw scaler */
-        scaler = &style->window.scaler;
-        if (scaler->type == NK_STYLE_ITEM_IMAGE) {
-            nk_draw_image(out, nk_rect(scaler_x, scaler_y, scaler_w, scaler_h),
-                &scaler->data.image, nk_white);
+        item = &style->window.scaler;
+        if (item->type == NK_STYLE_ITEM_IMAGE) {
+            nk_draw_image(out, scaler, &item->data.image, nk_white);
         } else {
-            nk_fill_triangle(out, scaler_x + scaler_w, scaler_y, scaler_x + scaler_w,
-                scaler_y + scaler_h, scaler_x, scaler_y + scaler_h, scaler->data.color);
+            nk_fill_triangle(out, scaler.x + scaler.w, scaler.y, scaler.x + scaler.w,
+                scaler.y + scaler.h, scaler.x, scaler.y + scaler.h, item->data.color);
         }
 
         /* do window scaling */
         if (!(window->flags & NK_WINDOW_ROM)) {
-            float prev_x = in->mouse.prev.x;
-            float prev_y = in->mouse.prev.y;
             struct nk_vec2 window_size = style->window.min_size;
-            int incursor = NK_INBOX(prev_x,prev_y,scaler_x,scaler_y,scaler_w,scaler_h);
+            int left_mouse_down = in->mouse.buttons[NK_BUTTON_LEFT].down;
+            int left_mouse_click_in_scaler = nk_input_has_mouse_click_down_in_rect(in,
+                    NK_BUTTON_LEFT, scaler, nk_true);
 
-            if (nk_input_is_mouse_down(in, NK_BUTTON_LEFT) && incursor) {
+            if (nk_input_is_mouse_down(in, NK_BUTTON_LEFT) && left_mouse_down && left_mouse_click_in_scaler) {
                 window->bounds.w = NK_MAX(window_size.x, window->bounds.w + in->mouse.delta.x);
                 /* dragging in y-direction is only possible if static window */
                 if (!(layout->flags & NK_WINDOW_DYNAMIC))
                     window->bounds.h = NK_MAX(window_size.y, window->bounds.h + in->mouse.delta.y);
                 ctx->style.cursor_active = ctx->style.cursors[NK_CURSOR_RESIZE_TOP_RIGHT_DOWN_LEFT];
+                in->mouse.buttons[NK_BUTTON_LEFT].clicked_pos.x = scaler.x + in->mouse.delta.x + scaler.w/2.0f;
+                in->mouse.buttons[NK_BUTTON_LEFT].clicked_pos.y = scaler.y + in->mouse.delta.y + scaler.h/2.0f;
             }
         }
     }
@@ -16580,6 +16824,17 @@ nk_row_layout(struct nk_context *ctx, enum nk_layout_format fmt,
     win->layout->row.ratio = 0;
     win->layout->row.item_offset = 0;
     win->layout->row.filled = 0;
+}
+
+NK_API float
+nk_layout_ratio_from_pixel(struct nk_context *ctx, float pixel_width)
+{
+    struct nk_window *win;
+    NK_ASSERT(ctx);
+    NK_ASSERT(pixel_width);
+    if (!ctx || !ctx->current || !ctx->current->layout) return 0;
+    win = ctx->current;
+    return NK_CLAMP(0.0f, pixel_width/win->bounds.x, 1.0f);
 }
 
 NK_API void
@@ -16895,17 +17150,17 @@ nk_layout_widget_space(struct nk_rect *bounds, const struct nk_context *ctx,
 
     /* cache some configuration data */
     spacing = ctx->style.window.spacing;
-    if (!(win->flags & NK_WINDOW_SUB))
+    if (!(layout->flags & NK_WINDOW_SUB))
         padding = style->window.padding;
-    else if (win->flags & NK_WINDOW_COMBO)
+    else if (layout->flags & NK_WINDOW_COMBO)
         padding = style->window.combo_padding;
-    else if (win->flags & NK_WINDOW_CONTEXTUAL)
+    else if (layout->flags & NK_WINDOW_CONTEXTUAL)
         padding = style->window.contextual_padding;
-    else if (win->flags & NK_WINDOW_MENU)
+    else if (layout->flags & NK_WINDOW_MENU)
         padding = style->window.menu_padding;
-    else if (win->flags & NK_WINDOW_GROUP)
+    else if (layout->flags & NK_WINDOW_GROUP)
         padding = style->window.group_padding;
-    else if (win->flags & NK_WINDOW_TOOLTIP)
+    else if (layout->flags & NK_WINDOW_TOOLTIP)
         padding = style->window.tooltip_padding;
     else padding = style->window.popup_padding;
 
@@ -16926,7 +17181,7 @@ nk_layout_widget_space(struct nk_rect *bounds, const struct nk_context *ctx,
         /* scaling single ratio widget width */
         item_width = layout->row.item_width * panel_space;
         item_offset = layout->row.item_offset;
-        item_spacing = (float)layout->row.index * spacing.x;
+        item_spacing = 0;
 
         if (modify) {
             layout->row.item_offset += item_width + spacing.x;
@@ -16954,6 +17209,7 @@ nk_layout_widget_space(struct nk_rect *bounds, const struct nk_context *ctx,
         item_spacing = (float)layout->row.index * spacing.x;
         item_width = (ratio * panel_space);
         item_offset = layout->row.item_offset;
+
         if (modify) {
             layout->row.item_offset += item_width;
             layout->row.filled += ratio;
@@ -17313,6 +17569,13 @@ nk_widget(struct nk_rect *bounds, const struct nk_context *ctx)
     /* allocate space  and check if the widget needs to be updated and drawn */
     nk_panel_alloc_space(bounds, ctx);
     c = &ctx->current->layout->clip;
+
+    /* need to convert to int here to remove floating point error */
+    bounds->x = (float)((int)bounds->x);
+    bounds->y = (float)((int)bounds->y);
+    bounds->w = (float)((int)bounds->w);
+    bounds->h = (float)((int)bounds->h);
+
     if (!NK_INTERSECT(c->x, c->y, c->w, c->h, bounds->x, bounds->y, bounds->w, bounds->h))
         return NK_WIDGET_INVALID;
     if (!NK_CONTAINS(bounds->x, bounds->y, bounds->w, bounds->h, c->x, c->y, c->w, c->h))
@@ -17451,7 +17714,7 @@ nk_text_wrap_colored(struct nk_context *ctx, const char *str,
     nk_widget_text_wrap(&win->buffer, bounds, str, len, &text, style->font);
 }
 
-#ifdef NK_INCLUDE_STANDARD_IO
+#ifdef NK_INCLUDE_STANDARD_VARARGS
 NK_API void
 nk_labelf_colored(struct nk_context *ctx, nk_flags flags,
     struct nk_color color, const char *fmt, ...)
@@ -18245,14 +18508,62 @@ nk_edit_buffer(struct nk_context *ctx, nk_flags flags,
     return ret_flags;
 }
 
+NK_API nk_flags
+nk_edit_string_zero_terminated(struct nk_context *ctx, nk_flags flags,
+    char *buffer, int max, nk_filter filter)
+{
+    nk_flags result;
+    int len = nk_strlen(buffer);
+    result = nk_edit_string(ctx, flags, buffer, &len, max, filter);
+    buffer[NK_MIN(NK_MAX(max-1,0), len)] = '\0';
+    return result;
+}
+
 /*----------------------------------------------------------------
  *
  *                          PROPERTY
  *
  * --------------------------------------------------------------*/
-NK_INTERN float
-nk_property(struct nk_context *ctx, const char *name, float min, float val,
-    float max, float step, float inc_per_pixel, const enum nk_property_filter filter)
+NK_INTERN struct nk_property_variant
+nk_property_variant_int(int value, int min_value, int max_value, int step)
+{
+    struct nk_property_variant result;
+    result.kind = NK_PROPERTY_INT;
+    result.value.i = value;
+    result.min_value.i = min_value;
+    result.max_value.i = max_value;
+    result.step.i = step;
+    return result;
+}
+
+NK_INTERN struct nk_property_variant
+nk_property_variant_float(float value, float min_value, float max_value, float step)
+{
+    struct nk_property_variant result;
+    result.kind = NK_PROPERTY_FLOAT;
+    result.value.f = value;
+    result.min_value.f = min_value;
+    result.max_value.f = max_value;
+    result.step.f = step;
+    return result;
+}
+
+NK_INTERN struct nk_property_variant
+nk_property_variant_double(double value, double min_value, double max_value,
+    double step)
+{
+    struct nk_property_variant result;
+    result.kind = NK_PROPERTY_DOUBLE;
+    result.value.d = value;
+    result.min_value.d = min_value;
+    result.max_value.d = max_value;
+    result.step.d = step;
+    return result;
+}
+
+NK_INTERN void
+nk_property(struct nk_context *ctx, const char *name, struct nk_property_variant *variant,
+    float inc_per_pixel, const enum nk_property_filter filter)
 {
     struct nk_window *win;
     struct nk_panel *layout;
@@ -18278,13 +18589,13 @@ nk_property(struct nk_context *ctx, const char *name, float min, float val,
     NK_ASSERT(ctx->current);
     NK_ASSERT(ctx->current->layout);
     if (!ctx || !ctx->current || !ctx->current->layout)
-        return val;
+        return;
 
     win = ctx->current;
     layout = win->layout;
     style = &ctx->style;
     s = nk_widget(&bounds, ctx);
-    if (!s) return val;
+    if (!s) return;
     in = (s == NK_WIDGET_ROM || layout->flags & NK_WINDOW_ROM) ? 0 : &ctx->input;
 
     /* calculate hash from name */
@@ -18308,8 +18619,8 @@ nk_property(struct nk_context *ctx, const char *name, float min, float val,
 
     /* execute property widget */
     old_state = *state;
-    val = nk_do_property(&ctx->last_widget_state, &win->buffer, bounds, name,
-        min, val, max, step, inc_per_pixel, buffer, len, state, cursor,
+    nk_do_property(&ctx->last_widget_state, &win->buffer, bounds, name,
+        variant, inc_per_pixel, buffer, len, state, cursor,
         &style->property, filter, in, style->font, &ctx->text_edit);
 
     if (in && *state != NK_PROPERTY_DEFAULT && !win->property.active) {
@@ -18335,55 +18646,92 @@ nk_property(struct nk_context *ctx, const char *name, float min, float val,
         }
         win->property.active = 0;
     }
-    return val;
+}
+
+NK_API void
+nk_property_int(struct nk_context *ctx, const char *name,
+    int min, int *val, int max, int step, float inc_per_pixel)
+{
+    struct nk_property_variant variant;
+    NK_ASSERT(ctx);
+    NK_ASSERT(name);
+    NK_ASSERT(val);
+    if (!ctx || !ctx->current || !name || !val) return;
+    variant = nk_property_variant_int(*val, min, max, step);
+    nk_property(ctx, name, &variant, inc_per_pixel, NK_FILTER_INT);
+    *val = variant.value.i;
 }
 
 NK_API void
 nk_property_float(struct nk_context *ctx, const char *name,
     float min, float *val, float max, float step, float inc_per_pixel)
 {
+    struct nk_property_variant variant;
     NK_ASSERT(ctx);
     NK_ASSERT(name);
     NK_ASSERT(val);
     if (!ctx || !ctx->current || !name || !val) return;
-    *val = nk_property(ctx, name, min, *val, max, step, inc_per_pixel, NK_FILTER_FLOAT);
+    variant = nk_property_variant_float(*val, min, max, step);
+    nk_property(ctx, name, &variant, inc_per_pixel, NK_FILTER_FLOAT);
+    *val = variant.value.f;
 }
 
 NK_API void
-nk_property_int(struct nk_context *ctx, const char *name,
-    int min, int *val, int max, int step, int inc_per_pixel)
+nk_property_double(struct nk_context *ctx, const char *name,
+    double min, double *val, double max, double step, float inc_per_pixel)
 {
-    float value;
+    struct nk_property_variant variant;
     NK_ASSERT(ctx);
     NK_ASSERT(name);
     NK_ASSERT(val);
     if (!ctx || !ctx->current || !name || !val) return;
-    value = nk_property(ctx, name, (float)min, (float)*val, (float)max, (float)step,
-        (float)inc_per_pixel, NK_FILTER_FLOAT);
-    *val = (int)value;
+    variant = nk_property_variant_double(*val, min, max, step);
+    nk_property(ctx, name, &variant, inc_per_pixel, NK_FILTER_FLOAT);
+    *val = variant.value.d;
+}
+
+NK_API int
+nk_propertyi(struct nk_context *ctx, const char *name, int min, int val,
+    int max, int step, float inc_per_pixel)
+{
+    struct nk_property_variant variant;
+    NK_ASSERT(ctx);
+    NK_ASSERT(name);
+    if (!ctx || !ctx->current || !name) return val;
+    variant = nk_property_variant_int(val, min, max, step);
+    nk_property(ctx, name, &variant, inc_per_pixel, NK_FILTER_INT);
+    val = variant.value.i;
+    return val;
 }
 
 NK_API float
 nk_propertyf(struct nk_context *ctx, const char *name, float min,
     float val, float max, float step, float inc_per_pixel)
 {
+    struct nk_property_variant variant;
     NK_ASSERT(ctx);
     NK_ASSERT(name);
-    if (!ctx || !ctx->current || !name) return val;
-    return nk_property(ctx, name, min, val, max, step, inc_per_pixel, NK_FILTER_FLOAT);
+    NK_ASSERT(val);
+    if (!ctx || !ctx->current || !name || !val) return val;
+    variant = nk_property_variant_float(val, min, max, step);
+    nk_property(ctx, name, &variant, inc_per_pixel, NK_FILTER_FLOAT);
+    val = variant.value.f;
+    return val;
 }
 
-NK_API int
-nk_propertyi(struct nk_context *ctx, const char *name, int min, int val,
-    int max, int step, int inc_per_pixel)
+NK_API double
+nk_propertyd(struct nk_context *ctx, const char *name, double min,
+    double val, double max, double step, float inc_per_pixel)
 {
-    float value;
+    struct nk_property_variant variant;
     NK_ASSERT(ctx);
     NK_ASSERT(name);
-    if (!ctx || !ctx->current || !name) return val;
-    value = nk_property(ctx, name, (float)min, (float)val, (float)max, (float)step,
-        (float)inc_per_pixel, NK_FILTER_FLOAT);
-    return (int)value;
+    NK_ASSERT(val);
+    if (!ctx || !ctx->current || !name || !val) return val;
+    variant = nk_property_variant_double(val, min, max, step);
+    nk_property(ctx, name, &variant, inc_per_pixel, NK_FILTER_FLOAT);
+    val = variant.value.d;
+    return val;
 }
 
 /*----------------------------------------------------------------
@@ -18690,7 +19038,7 @@ nk_chart_end(struct nk_context *ctx)
 
     win = ctx->current;
     chart = &win->layout->chart;
-    memset(chart, 0, sizeof(*chart));
+    NK_MEMSET(chart, 0, sizeof(*chart));
     return;
 }
 
