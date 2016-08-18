@@ -1,9 +1,16 @@
 
+// SDL includes
+// #include <SDL2/SDL.h>
+// #include <SDL2/SDL_opengl.h>
+
+#include "nk-lib.h"
+
+// nuklear includes
 #define NK_IMPLEMENTATION
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_INCLUDE_STANDARD_IO
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_DEFAULT_FONT
+// #define NK_SDL_GL2_IMPLEMENTATION
 #include "nuklear/nuklear.h"
+
+nk_ctxt nuklear_context() {
+  struct nk_context *tmp;
+  return tmp;
+}

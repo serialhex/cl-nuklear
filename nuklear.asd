@@ -12,13 +12,23 @@
     ((:module nuklear-lib
       :pathname "bin"
       :components
-      ((:static-file "nuklear.c")
-       (:static-file "nuklear.dll")))
+      ((:static-file "nk-lib.h")
+       (:static-file "nuklear.dll")
+       (:static-file "nuklear.so")
+       (:static-file "nk-lib.i386-unknown-freebsd.spec")
+       (:static-file "nk-lib.i686-apple-darwin9.spec")
+       (:static-file "nk-lib.i686-pc-linux-gnu.spec")
+       (:static-file "nk-lib.i686-pc-windows-msvc.spec")
+       (:static-file "nk-lib.x86_64-apple-darwin9.spec")
+       (:static-file "nk-lib.x86_64-pc-linux-gnu.spec")
+       (:static-file "nk-lib.x86_64-pc-windows-msvc.spec")
+       (:static-file "nk-lib.x86_64-unknown-freebsd.spec")))
      (:module nuklear-src
        :pathname "src"
        :serial t
        :components
        ((:file "package")
         (:file "autowrap")
+        (:file "library")
         (:file "nuklear")))
       ))
