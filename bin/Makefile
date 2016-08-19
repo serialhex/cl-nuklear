@@ -6,6 +6,9 @@ SRC=$(CFILE) nk-lib.h
 
 # the following is the path to visual studio
 VS=D:\Program Files\Visual Studio
+# 32-bit: amd64_x86
+# 64-bit: amd64
+# 64-bit arm: amd64_arm
 
 nuklear.dll: $(SRC)
 	"$(VS)\VC\vcvarsall.bat" amd64 && $(CC) $(CFILE) /link /DLL /out:nuklear.dll
