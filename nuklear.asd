@@ -6,7 +6,8 @@
   :license "MIT"
 
   :depends-on (:cl-autowrap
-               :sdl2)
+               :sdl2
+               :cl-opengl)
 
   :components
     ((:module nuklear-lib
@@ -23,11 +24,13 @@
        (:static-file "nk-lib.x86_64-pc-linux-gnu.spec")
        (:static-file "nk-lib.x86_64-pc-windows-msvc.spec")
        (:static-file "nk-lib.x86_64-unknown-freebsd.spec")))
+
      (:module nuklear-src
        :pathname "src"
        :serial t
        :components
        ((:file "package")
+        (:file "util")
         (:file "autowrap")
         (:file "library")
         (:file "nuklear")))

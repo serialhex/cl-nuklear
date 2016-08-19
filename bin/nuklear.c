@@ -9,8 +9,3 @@
 #define NK_IMPLEMENTATION
 // #define NK_SDL_GL2_IMPLEMENTATION
 #include "nuklear/nuklear.h"
-
-nk_ctxt nuklear_context() {
-  struct nk_context *tmp;
-  return tmp;
-}

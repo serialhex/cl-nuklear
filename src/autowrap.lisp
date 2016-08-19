@@ -1,9 +1,9 @@
-(cl:in-package :nuklear-ffi)
+(cl:in-package :nk-ffi)
 
 (autowrap:c-include
  '(nuklear nuklear-lib "nk-lib.h")
-  ;:accessor-package :nuklear-ffi.accessors
-  :function-package :nuklear-ffi.functions
+  :accessor-package :nk-ffi.acc
+  :function-package :nk-ffi.fns
   :spec-path '(nuklear nuklear-lib)
   :exclude-sources ("/usr/local/lib/clang/([^/]*)/include/(?!stddef.h)"
                     "/usr/include/"
