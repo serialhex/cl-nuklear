@@ -4,8 +4,11 @@
 CFILE=nuklear.c
 SRC=$(CFILE) nk-lib.h
 
+# the following is the path to visual studio
+VS=D:\Program Files\Visual Studio
+
 nuklear.dll: $(SRC)
-	cl $(CFILE) /link /DLL /out:nuklear.dll
+	"$(VS)\VC\vcvarsall.bat" amd64 && $(CC) $(CFILE) /link /DLL /out:nuklear.dll
 
 nuklear.so: $(SRC)
 	$(CC) $(SRC) -o nuklear.so -shared -fPIC
